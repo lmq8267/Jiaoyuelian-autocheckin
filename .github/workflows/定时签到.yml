@@ -50,12 +50,10 @@ jobs:
         CHECKIN_RESULT=$(echo "$CHECKIN_OUTPUT" | awk -F'CHECKIN_RESULT: ' '/CHECKIN_RESULT:/ {print $2}')
 
         # Print the full output of checkin.js for debugging
+        echo ""
         echo "checkin.js 脚本完整输出:"
         echo "$CHECKIN_OUTPUT"
-
-        # Print the extracted result
-        echo "提取的签到结果: $CHECKIN_RESULT"
-
+        
     - name: 上传调试产物
       if: failure()
       uses: actions/upload-artifact@v4
