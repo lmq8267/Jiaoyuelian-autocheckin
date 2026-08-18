@@ -13,7 +13,7 @@ jobs:
 
     steps:
     - name: 检出仓库
-      uses: actions/checkout@v3 # 检出你的仓库代码
+      uses: actions/checkout@main # 检出你的仓库代码
 
     -  name: 删除工作流
        uses: Mattraks/delete-workflow-runs@main
@@ -23,7 +23,7 @@ jobs:
         keep_minimum_runs: 0
 
     - name: 设置 Node.js 环境
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@main
       with:
         node-version: '18' # 或者你希望的Node.js版本
 
@@ -31,7 +31,7 @@ jobs:
       run: npm install puppeteer # 安装puppeteer库
 
     - name: 设置 Python 环境
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@main
       with:
         python-version: '3.x' # Use the latest Python 3.x version
 
@@ -53,6 +53,28 @@ jobs:
         echo ""
         echo "checkin.js 脚本完整输出:"
         echo "$CHECKIN_OUTPUT"
+
+    - name: 检查上次提交日期
+      id: check_commit_date
+      run: |
+        # 获取上次提交日期（格式：YYYY-MM-DD）
+        LAST_COMMIT_DATE=$(git log -1 --format=%cd --date=short)
+        echo "上次提交日期: $LAST_COMMIT_DATE"
+        # 计算当前日期和上次提交日期的差值（单位：天）
+        LAST_COMMIT_TIMESTAMP=$(date -d "$LAST_COMMIT_DATE" +%s)
+        CURRENT_TIMESTAMP=$(date +%s)
+        DIFF_DAYS=$(( (CURRENT_TIMESTAMP - LAST_COMMIT_TIMESTAMP) / 86400 ))
+        echo "距离上次提交以来的天数: $DIFF_DAYS"
+        echo "diff_days=$DIFF_DAYS" >> $GITHUB_ENV
+        
+    - name: 执行空提交
+      if: ${{ env.diff_days > 50 }}
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        # 创建空提交
+        git commit --allow-empty -m "自动空提交，保持仓库活跃"
+        git push
         
     - name: 上传调试产物
       if: failure()
