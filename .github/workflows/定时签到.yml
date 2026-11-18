@@ -2,8 +2,8 @@ name: 定时签到
 
 on:
   workflow_dispatch: # 允许手动触发
-  schedule:
-    - cron: '10 2 * * *' # 每天UTC时间02:10运行 (对应UTC+8的10:10，确保在可签到时间后)
+  #schedule:
+  #  - cron: '10 2 * * *' # 每天UTC时间02:10运行 (对应UTC+8的10:10，确保在可签到时间后)
 permissions:
   contents: write
   actions: write
@@ -54,27 +54,27 @@ jobs:
         echo "checkin.js 脚本完整输出:"
         echo "$CHECKIN_OUTPUT"
 
-    - name: 检查上次提交日期
-      id: check_commit_date
-      run: |
-        # 获取上次提交日期（格式：YYYY-MM-DD）
-        LAST_COMMIT_DATE=$(git log -1 --format=%cd --date=short)
-        echo "上次提交日期: $LAST_COMMIT_DATE"
-        # 计算当前日期和上次提交日期的差值（单位：天）
-        LAST_COMMIT_TIMESTAMP=$(date -d "$LAST_COMMIT_DATE" +%s)
-        CURRENT_TIMESTAMP=$(date +%s)
-        DIFF_DAYS=$(( (CURRENT_TIMESTAMP - LAST_COMMIT_TIMESTAMP) / 86400 ))
-        echo "距离上次提交以来的天数: $DIFF_DAYS"
-        echo "diff_days=$DIFF_DAYS" >> $GITHUB_ENV
+    #- name: 检查上次提交日期
+    #  id: check_commit_date
+    #  run: |
+    #    # 获取上次提交日期（格式：YYYY-MM-DD）
+    #    LAST_COMMIT_DATE=$(git log -1 --format=%cd --date=short)
+    #    echo "上次提交日期: $LAST_COMMIT_DATE"
+    #    # 计算当前日期和上次提交日期的差值（单位：天）
+    #    LAST_COMMIT_TIMESTAMP=$(date -d "$LAST_COMMIT_DATE" +%s)
+    #    CURRENT_TIMESTAMP=$(date +%s)
+    #    DIFF_DAYS=$(( (CURRENT_TIMESTAMP - LAST_COMMIT_TIMESTAMP) / 86400 ))
+    #    echo "距离上次提交以来的天数: $DIFF_DAYS"
+    #    echo "diff_days=$DIFF_DAYS" >> $GITHUB_ENV
         
-    - name: 执行空提交
-      if: ${{ env.diff_days > 50 }}
-      run: |
-        git config user.name "github-actions[bot]"
-        git config user.email "github-actions[bot]@users.noreply.github.com"
-        # 创建空提交
-        git commit --allow-empty -m "自动空提交，保持仓库活跃"
-        git push
+    #- name: 执行空提交
+    #  if: ${{ env.diff_days > 50 }}
+    #  run: |
+    #    git config user.name "github-actions[bot]"
+    #    git config user.email "github-actions[bot]@users.noreply.github.com"
+    #    # 创建空提交
+    #    git commit --allow-empty -m "自动空提交，保持仓库活跃"
+    #    git push
         
     - name: 上传调试产物
       if: failure()
